@@ -7,7 +7,7 @@
 - [x] Modular project structure
 
 ## Tools & Actions
-- [ ] Web search tool (Brave/Serper API)
+- [ ] Web search tool (tinyfish API)
 - [ ] Run shell commands
 - [ ] Read/write files
 - [ ] Fetch and summarize a URL
