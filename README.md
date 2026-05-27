@@ -8,10 +8,10 @@
 
 ## Tools & Actions
 - [x] Web search tool (tinyfish API)
-- [ ] Run shell commands
-- [ ] Read/write files
-- [ ] Fetch and summarize a URL
-- [ ] Get current time/weather
+- [x] Run shell commands
+- [x] Read/write files
+- [x] Fetch and summarize a URL
+- [x] Get current time/weather
 
 ## Reliability
 - [ ] Recursion/depth guard on tool calls

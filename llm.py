@@ -63,7 +63,7 @@ def complete(message, max_tool_calls=5):
         complete(None, max_tool_calls - 1)
     else:
         context.append({ 'role': 'assistant', 'content': message['content'] })
-        console.print(Markdown(message['content']))
+        console.print('\n', Markdown(message['content']))
 
 
 def stream(message):
