@@ -3,8 +3,12 @@ import json as J
 import requests as R
 from tools import TOOLS_MAP, tools
 from dotenv import load_dotenv
+from rich.console import Console
+from rich.markdown import Markdown
 
 load_dotenv()
+
+console = Console()
 
 headers = {
     'Authorization': f'Bearer {OS.getenv("OPENROUTER_API_KEY")}',
@@ -12,7 +16,7 @@ headers = {
 }
 
 payload = {
-    'model': 'baidu/cobuddy:free',
+    'model': 'z-ai/glm-4.5-air:free',
     'max_tokens': 1_000,
     'temperature': 0.7
 }
@@ -59,7 +63,7 @@ def complete(message, max_tool_calls=5):
         complete(None, max_tool_calls - 1)
     else:
         context.append({ 'role': 'assistant', 'content': message['content'] })
-        print(f'< {message["content"]}\n')
+        console.print(Markdown(message['content']))
 
 
 def stream(message):
