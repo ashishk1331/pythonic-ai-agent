@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "docstring-parser>=0.18.0",
+    "human-id>=0.2.0",
     "prompt-toolkit>=3.0.52",
     "python-dotenv>=1.2.2",
     "requests>=2.34.2",
