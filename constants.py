@@ -8,6 +8,8 @@ LLM_MODEL = "z-ai/glm-4.5-air:free"
 MAX_TOKENS = 1_000
 TEMPERATURE = 0.7
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
+TINYFISH_SEARCH_URL = "https://api.search.tinyfish.ai"
+TINYFISH_FETCH_URL = "https://api.fetch.tinyfish.ai"
 MAX_CONTEXT_LENGTH = 131_000
 COMPACTION_THRESHOLD = 0.9
 COMPACTION_RECENT_N = 5
@@ -21,4 +23,9 @@ BASIC_PAYLOAD = {
     "model": LLM_MODEL,
     "max_tokens": MAX_TOKENS,
     "temperature": TEMPERATURE,
+}
+
+TINYFISH_HEADERS = {
+    "X-API-Key": str(OS.getenv("TINYFISH_API_KEY")),
+    "Content-Type": "application/json",
 }
