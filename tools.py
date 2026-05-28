@@ -10,7 +10,7 @@ TOOLS = []
 TOOLS_MAP = {}
 
 
-def tool(func):
+def register_tool(func):
     """ "A decorator to mark a function as a tool."""
     func.is_tool = True
     func.doc = parse(func.__doc__)
@@ -43,7 +43,7 @@ def tool(func):
     return wrapper
 
 
-@tool
+@register_tool
 def web_search(query):
     """Search the web. Use this to find information or discover URLs.
 
@@ -66,7 +66,7 @@ def web_search(query):
     return data["results"]
 
 
-@tool
+@register_tool
 def web_fetch(url):
     """Fetch the full content of a URL as markdown. Use this when you already have a URL.
 
@@ -93,7 +93,7 @@ def web_fetch(url):
     return data["results"][0]
 
 
-@tool
+@register_tool
 def run_command(command):
     """Run a shell command and return its output.
 
@@ -111,7 +111,7 @@ def run_command(command):
     return result.stdout or result.stderr
 
 
-@tool
+@register_tool
 def read_file(path):
     """Read the contents of a file.
 
@@ -122,7 +122,7 @@ def read_file(path):
         return file.read()
 
 
-@tool
+@register_tool
 def write_file(path, content):
     """Write content to a file, replacing any existing content.
 
