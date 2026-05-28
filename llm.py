@@ -1,93 +1,60 @@
-import os as OS
 import json as J
 import requests as R
-from tools import TOOLS_MAP, tools
-from dotenv import load_dotenv
+from tools import TOOLS_MAP, TOOLS
 from rich.console import Console
 from rich.markdown import Markdown
-
-load_dotenv()
+import constants as C
+from context import ContextManager
+from api import fetch
 
 console = Console()
+context = ContextManager()
 
-headers = {
-    'Authorization': f'Bearer {OS.getenv("OPENROUTER_API_KEY")}',
-    'Content-Type': 'application/json'
-}
 
-payload = {
-    'model': 'z-ai/glm-4.5-air:free',
-    'max_tokens': 1_000,
-    'temperature': 0.7
-}
-
-context = [
-    {'role': 'system', 'content': 'You are a helpful assistant who always speak briefly.'},
-]
-
-def complete(message, max_tool_calls=5):
+def complete(message, max_tool_calls=C.MAX_TOOL_CALLS):
 
     if max_tool_calls <= 0:
-        print('[ERROR] Maximum tool call limit reached.')
+        print("[ERROR] Maximum tool call limit reached.")
         return
 
     if message is not None:
-        context.append({ 'role': 'user', 'content': message })
+        context.append({"role": "user", "content": message})
 
-    resp = R.post(
-        'https://openrouter.ai/api/v1/chat/completions',
-        headers=headers,
-        json=payload | { 'messages': context, 'tools': tools },
+    data = fetch(
+        C.OPENROUTER_BASE_URL,
+        headers=C.HEADERS,
+        payload=C.BASIC_PAYLOAD | {"messages": context.get_context(), "tools": TOOLS},
     )
 
-    if resp.status_code != 200:
-        print(f'[ERROR] API request failed with status code {resp.status_code}: {resp.text}')
+    if not data:
+        print("[ERROR] No response from API.")
         return
 
-    data = resp.json()
-    message = data['choices'][0]['message']
+    message = data["choices"][0]["message"]
+    usage = data["usage"]
 
-    if message.get('tool_calls'):
-        context.append(message)
-        for tool_call in message['tool_calls']:
-            name = tool_call['function']['name']
-            args = J.loads(tool_call['function']['arguments'])
+    if message.get("tool_calls"):
+        context.append(message, usage)
+        for tool_call in message["tool_calls"]:
+            name = tool_call["function"]["name"]
+            args = J.loads(tool_call["function"]["arguments"])
 
             result = TOOLS_MAP[name](**args)
 
-            context.append({
-                'role': 'tool',
-                'tool_call_id': tool_call['id'],
-                'content': str(result),
-            })
+            context.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_call["id"],
+                    "content": str(result),
+                }
+            )
         complete(None, max_tool_calls - 1)
     else:
-        context.append({ 'role': 'assistant', 'content': message['content'] })
-        console.print('\n', Markdown(message['content']))
+        context.append({"role": "assistant", "content": message["content"]}, usage)
+        console.print(Markdown(message["content"]))
 
-
-def stream(message):
-    context.append({ 'role': 'user', 'content': message })
-
-    resp = R.post(
-        'https://openrouter.ai/api/v1/chat/completions',
-        headers=headers,
-        json=payload | { 'messages': context, 'stream': True },
-        stream=True,
-    )
-
-    print('< ', end='')
-    for line in resp.iter_lines():
-        if not line:
-            continue
-        line = line.decode('utf-8')
-        if line.startswith(':'):
-            continue
-        line = line[6:]
-        if line == '[DONE]':
-            break
-        print(J.loads(line)['choices'][0]['delta']['content'], end='', flush=True)
-    print()
 
 def debug_context():
-    print(f'---\n[CONTEXT STARTS]\n\n{J.dumps(context, indent=2)}\n\n[CONTEXT ENDS]\n---')
+    print(
+        f"---\n[CONTEXT STARTS]\n\n{J.dumps(context.get_context(), indent=2)}\n\n[CONTEXT ENDS]\n---"
+    )

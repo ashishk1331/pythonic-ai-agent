@@ -9,65 +9,76 @@ from utils import top_three
 load_dotenv()
 
 TINYFISH_HEADERS = {
-    'X-API-Key': str(OS.getenv('TINYFISH_API_KEY')),
-    'Content-Type': 'application/json',
+    "X-API-Key": str(OS.getenv("TINYFISH_API_KEY")),
+    "Content-Type": "application/json",
 }
 
+
 def web_search(query):
-    print(f'[TOOL] [WEB_SEARCH] {query}')
-    query = urlencode({'query': query})
-    resp = R.get(
-        'https://api.search.tinyfish.ai?' + query, 
-        headers=TINYFISH_HEADERS
-    )
+    print(f"[TOOL] [WEB_SEARCH] {query}")
+    query = urlencode({"query": query})
+    resp = R.get("https://api.search.tinyfish.ai?" + query, headers=TINYFISH_HEADERS)
 
     if resp.status_code != 200:
-        print(f'[TOOL] [ERROR] Search failed with status code {resp.status_code}: {resp.text}')
-        return f'Failed to search for {query}'
+        print(
+            f"[TOOL] [ERROR] Search failed with status code {resp.status_code}: {resp.text}"
+        )
+        return f"Failed to search for {query}"
 
     data = resp.json()
-    print(f'[TOOL] [WEB_SEARCH_RESULT] "{query}" = {', '.join(top_three([result['site_name'].lstrip('www.') for result in data['results']]))}')
-    return data['results']
+    print(
+        f'[TOOL] [WEB_SEARCH_RESULT] "{query}" = {", ".join(top_three([result["site_name"].lstrip("www.") for result in data["results"]]))}'
+    )
+    return data["results"]
+
 
 def web_fetch(url):
-    print(f'[TOOL] [WEB_FETCH] {url}')
+    print(f"[TOOL] [WEB_FETCH] {url}")
     resp = R.post(
-        'https://api.fetch.tinyfish.ai',
+        "https://api.fetch.tinyfish.ai",
         headers=TINYFISH_HEADERS,
         json={
-            'urls': [url],
-            'format': 'markdown',
+            "urls": [url],
+            "format": "markdown",
         },
     )
 
     if resp.status_code != 200:
-        print(f'[TOOL] [ERROR] Fetch failed with status code {resp.status_code}: {resp.text}')
-        return f'Failed to fetch {url}'
+        print(
+            f"[TOOL] [ERROR] Fetch failed with status code {resp.status_code}: {resp.text}"
+        )
+        return f"Failed to fetch {url}"
 
     data = resp.json()
-    print(f'[TOOL] [WEB_FETCH_RESULT] {url} = {data['results'][0]['description']}')
-    return data['results'][0]
+    print(f"[TOOL] [WEB_FETCH_RESULT] {url} = {data['results'][0]['description']}")
+    return data["results"][0]
+
 
 def run_command(command):
-    print(f'[TOOL] [RUN_COMMAND] {command}')
+    print(f"[TOOL] [RUN_COMMAND] {command}")
     result = SP.run(command, shell=True, capture_output=True, text=True, timeout=30)
 
     if result.returncode != 0:
-        print(f'[TOOL] [ERROR] Command failed with return code {result.returncode}: {result.stderr}')
+        print(
+            f"[TOOL] [ERROR] Command failed with return code {result.returncode}: {result.stderr}"
+        )
     else:
         print(f'[TOOL] [RESULT_RAN] "{command}" = \n{result.stdout}')
     return result.stdout or result.stderr
 
+
 def read_file(path):
-    print(f'[TOOL] [READ_FILE] {path}')
-    with open(path, 'r') as file:
+    print(f"[TOOL] [READ_FILE] {path}")
+    with open(path, "r") as file:
         return file.read()
 
+
 def write_file(path, content):
-    print(f'[TOOL] [WRITE_FILE] {path} with content length {len(content)}')
-    with open(path, 'w') as file:
+    print(f"[TOOL] [WRITE_FILE] {path} with content length {len(content)}")
+    with open(path, "w") as file:
         file.write(content)
-        return f'{path} written.'
+        return f"{path} written."
+
 
 TOOLS_MAP = {
     "web_search": web_search,
@@ -77,7 +88,7 @@ TOOLS_MAP = {
     "write_file": write_file,
 }
 
-tools = [
+TOOLS = [
     {
         "type": "function",
         "function": {
@@ -88,11 +99,11 @@ tools = [
                 "properties": {
                     "command": {
                         "type": "string",
-                        "description": "The shell command to run"
+                        "description": "The shell command to run",
                     }
                 },
-                "required": ["command"]
-            }
+                "required": ["command"],
+            },
         },
     },
     {
@@ -103,12 +114,9 @@ tools = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The search query"
-                    }
+                    "query": {"type": "string", "description": "The search query"}
                 },
-                "required": ["query"]
+                "required": ["query"],
             },
         },
     },
@@ -120,13 +128,10 @@ tools = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "url": {
-                        "type": "string",
-                        "description": "The URL to fetch"
-                    }
+                    "url": {"type": "string", "description": "The URL to fetch"}
                 },
-                "required": ["url"]
-            }
+                "required": ["url"],
+            },
         },
     },
     {
@@ -137,13 +142,10 @@ tools = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "path": {
-                        "type": "string",
-                        "description": "The path to the file."
-                    }
+                    "path": {"type": "string", "description": "The path to the file."}
                 },
-                "required": ["path"]
-            }
+                "required": ["path"],
+            },
         },
     },
     {
@@ -154,20 +156,14 @@ tools = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "path": {
-                        "type": "string",
-                        "description": "The path to the file."
-                    },
+                    "path": {"type": "string", "description": "The path to the file."},
                     "content": {
                         "type": "string",
-                        "description": "The content to write to the file."
+                        "description": "The content to write to the file.",
                     },
                 },
-                "required": ["path", "content"]
-            }
+                "required": ["path", "content"],
+            },
         },
     },
 ]
-
-# print(J.dumps(web_search("supermemory blog"), indent=2))
-# print(J.dumps(web_fetch("https://supermemory.ai/blog/building-code-chunk-ast-aware-code-chunking/"), indent=2))
