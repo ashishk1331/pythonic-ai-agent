@@ -9,8 +9,8 @@
 - [x] pyproject.toml
 - [x] .env + .env.example
 - [ ] Provider-agnostic transport layer
-- [ ] Model pinning
-- [ ] Config from environment
+- [x] Model pinning
+- [x] Config from environment
 
 > **src/ layout** — move package under `src/agent/`, install with `pip install -e ".[dev]"`;
 > prevents accidental imports from project root.

@@ -1,5 +1,6 @@
 from .prompts import get_system_prompt, get_compaction_prompt
-import agent.constants as C
+from .config import CONFIG
+from .constants import HEADERS, BASIC_PAYLOAD, TINYFISH_HEADERS
 from .api import fetch
 
 
@@ -9,7 +10,7 @@ class ContextManager:
         self.compaction_context = [
             {"role": "system", "content": get_compaction_prompt()}
         ]
-        self.max_tokens = C.MAX_CONTEXT_LENGTH
+        self.max_tokens = CONFIG.MAX_CONTEXT_TOKENS
         self.current_tokens = 0
 
     def append(self, message, usage=None):
@@ -46,9 +47,9 @@ class ContextManager:
 
     def compaction(self, messages):
         data = fetch(
-            C.OPENROUTER_BASE_URL,
-            headers=C.HEADERS,
-            payload=C.BASIC_PAYLOAD | {"messages": messages},
+            CONFIG.OPENROUTER_URL,
+            headers=HEADERS,
+            payload=BASIC_PAYLOAD | {"messages": messages},
         )
 
         if not data:
@@ -60,10 +61,10 @@ class ContextManager:
         return summary, usage
 
     def detect_and_compact(self):
-        if self.current_tokens < self.max_tokens * C.COMPACTION_THRESHOLD:
+        if self.current_tokens < self.max_tokens * CONFIG.COMPACTION_THRESHOLD:
             return
 
-        if len(self.context) <= C.COMPACTION_RECENT_N + 1:
+        if len(self.context) <= CONFIG.COMPACTION_RECENT_N + 1:
             print(
                 f"[CONTEXT] Context length is {len(self.context)}. Not enough messages to compact."
             )
@@ -71,8 +72,8 @@ class ContextManager:
 
         print(f"[CONTEXT] Auto-compaction triggered.")
 
-        recent_messages = self.context[-C.COMPACTION_RECENT_N :]
-        previous_messages = self.context[1 : -C.COMPACTION_RECENT_N]
+        recent_messages = self.context[-CONFIG.COMPACTION_RECENT_N :]
+        previous_messages = self.context[1 : -CONFIG.COMPACTION_RECENT_N]
         prev_token_count = self.current_tokens
 
         summary, usage = self.compaction(

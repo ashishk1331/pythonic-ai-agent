@@ -3,7 +3,8 @@ import requests as R
 from .tools import TOOLS_MAP, TOOLS
 from rich.console import Console
 from rich.markdown import Markdown
-import agent.constants as C
+from .constants import HEADERS, BASIC_PAYLOAD
+from .config import CONFIG
 from .context import ContextManager
 from .api import fetch
 
@@ -11,7 +12,7 @@ console = Console()
 context = ContextManager()
 
 
-def complete(message, max_tool_calls=C.MAX_TOOL_CALLS):
+def complete(message, max_tool_calls=CONFIG.MAX_TOOL_CALLS):
 
     if max_tool_calls <= 0:
         print("[ERROR] Maximum tool call limit reached.")
@@ -21,9 +22,9 @@ def complete(message, max_tool_calls=C.MAX_TOOL_CALLS):
         context.append({"role": "user", "content": message})
 
     data = fetch(
-        C.OPENROUTER_BASE_URL,
-        headers=C.HEADERS,
-        payload=C.BASIC_PAYLOAD | {"messages": context.get_context(), "tools": TOOLS},
+        CONFIG.OPENROUTER_URL,
+        headers=HEADERS,
+        payload=BASIC_PAYLOAD | {"messages": context.get_context(), "tools": TOOLS},
     )
 
     if not data:
