@@ -1,6 +1,6 @@
 from .prompts import get_system_prompt, get_compaction_prompt
 from .config import CONFIG
-from .constants import HEADERS, BASIC_PAYLOAD, TINYFISH_HEADERS
+from .constants import HEADERS, COMPACTION_PAYLOAD
 from .api import fetch
 
 
@@ -49,7 +49,7 @@ class ContextManager:
         data = fetch(
             CONFIG.OPENROUTER_URL,
             headers=HEADERS,
-            payload=BASIC_PAYLOAD | {"messages": messages},
+            payload=COMPACTION_PAYLOAD | {"messages": messages},
         )
 
         if not data:

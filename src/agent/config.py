@@ -17,6 +17,14 @@ class ConfigManager():
         self.COMPACTION_THRESHOLD = float(OS.getenv("COMPACTION_THRESHOLD", 0.9))
         self.COMPACTION_RECENT_N = int(OS.getenv("COMPACTION_RECENT_N", 5))
         self.MAX_TOOL_CALLS = int(OS.getenv("MAX_TOOL_CALLS", 5))
+
+        # alternate and auxiliary models
+        self.ALTERNATE_MODEL_NAME = OS.getenv("ALTERNATE_MODEL_NAME", "moonshotai/kimi-k2.6:free")
+        self.AUXILIARY_MODEL_NAME = OS.getenv("AUXILIARY_MODEL_NAME", "liquid/lfm-2.5-1.2b-thinking:free")
+        self.ALTERNATE_MAX_TOKENS = int(OS.getenv("ALTERNATE_MAX_TOKENS", 1000))
+        self.ALTERNATE_MAX_CONTEXT_TOKENS = int(OS.getenv("ALTERNATE_MAX_CONTEXT_TOKENS", 262100))
+        self.AUXILIARY_MAX_TOKENS = int(OS.getenv("AUXILIARY_MAX_TOKENS", 32800))
+        self.AUXILIARY_MAX_CONTEXT_TOKENS = int(OS.getenv("AUXILIARY_MAX_CONTEXT_TOKENS", 32800))
     
     def _required(self, key: str) -> str:
         value = OS.getenv(key)

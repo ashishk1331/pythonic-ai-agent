@@ -87,7 +87,7 @@
 - [x] Sliding window compaction
 - [x] Token usage tracking
 - [ ] Tool result masking
-- [ ] Auxiliary model routing
+- [x] Auxiliary model routing
 - [ ] Persist context across sessions
 - [ ] Semantic memory
 - [ ] Entity extraction
