@@ -1,5 +1,6 @@
-from tools.registry import register_tool
+from ..tools.registry import register_tool
 import subprocess as SP
+
 
 @register_tool
 def run_command(command):

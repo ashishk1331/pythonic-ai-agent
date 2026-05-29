@@ -1,6 +1,6 @@
-from prompts import get_system_prompt, get_compaction_prompt
-import constants as C
-from api import fetch
+from .prompts import get_system_prompt, get_compaction_prompt
+import agent.constants as C
+from .api import fetch
 
 
 class ContextManager:

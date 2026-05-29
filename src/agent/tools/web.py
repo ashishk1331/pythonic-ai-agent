@@ -1,8 +1,9 @@
-from tools.registry import register_tool
+from ..tools.registry import register_tool
 from urllib.parse import urlencode
 import requests as R
-import constants as C
-from utils import top_three
+import agent.constants as C
+from agent.utils import top_three
+
 
 @register_tool
 def web_search(query):

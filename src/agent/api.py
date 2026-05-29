@@ -1,5 +1,4 @@
 import requests as R
-import constants as C
 
 
 def fetch(url, headers, payload):

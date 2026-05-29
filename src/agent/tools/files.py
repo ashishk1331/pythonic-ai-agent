@@ -1,4 +1,5 @@
-from tools.registry import register_tool
+from ..tools.registry import register_tool
+
 
 @register_tool
 def read_file(path):

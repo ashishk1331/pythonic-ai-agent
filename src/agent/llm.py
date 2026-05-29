@@ -1,11 +1,11 @@
 import json as J
 import requests as R
-from tools import TOOLS_MAP, TOOLS
+from .tools import TOOLS_MAP, TOOLS
 from rich.console import Console
 from rich.markdown import Markdown
-import constants as C
-from context import ContextManager
-from api import fetch
+import agent.constants as C
+from .context import ContextManager
+from .api import fetch
 
 console = Console()
 context = ContextManager()

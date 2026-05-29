@@ -1,7 +1,4 @@
 import os as OS
-from dotenv import load_dotenv
-
-load_dotenv()
 
 MAX_TOOL_CALLS = 5
 LLM_MODEL = "z-ai/glm-4.5-air:free"

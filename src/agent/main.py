@@ -1,4 +1,7 @@
-from llm import complete, context
+from dotenv import load_dotenv
+load_dotenv()
+
+from .llm import complete, context
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import HTML
 
