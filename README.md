@@ -85,7 +85,7 @@
 
 ## Context Engineering
 - [x] Sliding window compaction
-- [ ] Token usage tracking
+- [x] Token usage tracking
 - [ ] Tool result masking
 - [ ] Auxiliary model routing
 - [ ] Persist context across sessions

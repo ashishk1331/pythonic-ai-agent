@@ -2,12 +2,12 @@ from ..tools.registry import register_tool
 import subprocess as SP
 
 
-@register_tool
+@register_tool()
 def run_command(command):
     """Run a shell command and return its output.
 
     Args:
-        command: The shell command to run.
+        command (str): The shell command to run.
     """
     result = SP.run(command, shell=True, capture_output=True, text=True, timeout=30)
 

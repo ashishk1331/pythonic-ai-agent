@@ -53,6 +53,8 @@ def complete(message, max_tool_calls=CONFIG.MAX_TOOL_CALLS):
     else:
         context.append({"role": "assistant", "content": message["content"]}, usage)
         console.print(Markdown(message["content"]))
+    
+    debug_context()
 
 
 def debug_context():
