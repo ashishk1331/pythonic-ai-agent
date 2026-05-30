@@ -13,3 +13,8 @@ def get_compaction_prompt():
     with open(_PROMPTS_DIR / "compaction.md", "r") as file:
         return file.read()
     return "Please summarize the following conversation:"
+
+def get_title_prompt():
+    with open(_PROMPTS_DIR / "session_title.md", "r") as file:
+        return file.read()
+    return "Generate a concise title for a conversation based on the following messages:"

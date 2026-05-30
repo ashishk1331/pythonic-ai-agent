@@ -1,23 +1,33 @@
-from .prompts import get_system_prompt, get_compaction_prompt
-from .config import CONFIG
-from .constants import HEADERS, COMPACTION_PAYLOAD
-from .api import fetch
+from ..prompts import get_system_prompt, get_compaction_prompt, get_title_prompt
+from ..config import CONFIG
+from ..constants import HEADERS, COMPACTION_PAYLOAD
+from ..api import fetch
+from .helpers import SystemMessage, UserMessage
+from .session import Session
 
 
-class ContextManager:
-    def __init__(self):
-        self.context = [{"role": "system", "content": get_system_prompt()}]
-        self.compaction_context = [
-            {"role": "system", "content": get_compaction_prompt()}
-        ]
+class ContextManager(Session):
+    def __init__(self, session_id: str | None = None):
+        super().__init__(session_id)
+        self.context = [SystemMessage(get_system_prompt())] + self.get_session_data()
+        self.compaction_context = [SystemMessage(get_compaction_prompt())]
+        self.title_context = [SystemMessage(get_title_prompt())]
         self.max_tokens = CONFIG.MAX_CONTEXT_TOKENS
         self.current_tokens = 0
 
     def append(self, message, usage=None):
+        if len(self.context) == 1:
+            title, _ = self.generate_session_title(message)
+            if title:
+                self.update_session_title(title)
+            else:
+                self.update_session_title("New Conversation")
+
         self.context.append(message)
         if usage:
             self.current_tokens = usage["total_tokens"]
             self.detect_and_compact()
+        self.append_to_session(message, usage)
 
     def get_context(self):
         return self.context
@@ -60,6 +70,21 @@ class ContextManager:
         usage = data["usage"]
         return summary, usage
 
+    def generate_session_title(self, message):
+        data = fetch(
+            CONFIG.OPENROUTER_URL,
+            headers=HEADERS,
+            payload=COMPACTION_PAYLOAD | {"messages": self.title_context + [message]},
+        )
+
+        if not data:
+            print("[ERROR] No response from API during session title generation.")
+            return None, None
+
+        title = data["choices"][0]["message"]["content"]
+        usage = data["usage"]
+        return title, usage
+
     def detect_and_compact(self):
         if self.current_tokens < self.max_tokens * CONFIG.COMPACTION_THRESHOLD:
             return
@@ -78,7 +103,7 @@ class ContextManager:
 
         summary, usage = self.compaction(
             self.compaction_context
-            + [{"role": "user", "content": self.messages_iron(previous_messages)}]
+            + [UserMessage(self.messages_iron(previous_messages))]
         )
 
         if summary is None:
@@ -86,18 +111,22 @@ class ContextManager:
             return
 
         self.context = (
-            [{"role": "system", "content": get_system_prompt()}]
-            + [
-                {
-                    "role": "system",
-                    "content": f"[Compacted summary of earlier conversation: {summary}]",
-                }
+            [
+                SystemMessage(get_system_prompt()), 
+                SystemMessage(f"[Compacted summary of earlier conversation: {summary}]"),
             ]
             + recent_messages
         )
         if usage:
             self.current_tokens = usage["total_tokens"]
+        
+        self.overwrite_session(self.context, usage)
 
         print(
             f"[CONTEXT] Compaction completed. {prev_token_count} -> {self.current_tokens}"
         )
+
+    def load_session(self, session_id: str):
+        self.set_session(session_id)
+        self.context = [SystemMessage(get_system_prompt())] + self.get_session_data()
+        print(f"[CONTEXT] Loaded session '{session_id}' with {len(self.context)-1} messages.")

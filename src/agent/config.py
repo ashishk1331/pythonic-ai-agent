@@ -1,4 +1,5 @@
 import os as OS
+from pathlib import Path
 
 class ConfigManager():
     def __init__(self):
@@ -25,6 +26,13 @@ class ConfigManager():
         self.ALTERNATE_MAX_CONTEXT_TOKENS = int(OS.getenv("ALTERNATE_MAX_CONTEXT_TOKENS", 262100))
         self.AUXILIARY_MAX_TOKENS = int(OS.getenv("AUXILIARY_MAX_TOKENS", 32800))
         self.AUXILIARY_MAX_CONTEXT_TOKENS = int(OS.getenv("AUXILIARY_MAX_CONTEXT_TOKENS", 32800))
+
+        # Path to workspace
+        self.WORKSPACE_PATH = Path(__file__).parent.parent.parent / ".workspace"
+        self.WORKSPACE_PATH.mkdir(parents=True, exist_ok=True)
+
+        self.SESSIONS_PATH = self.WORKSPACE_PATH / "sessions"
+        self.SESSIONS_PATH.mkdir(parents=True, exist_ok=True)
     
     def _required(self, key: str) -> str:
         value = OS.getenv(key)

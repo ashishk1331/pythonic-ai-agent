@@ -14,3 +14,4 @@ wheels/
 workspace/*
 sample_request.txt
 .sessions
+.workspace

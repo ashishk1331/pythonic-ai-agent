@@ -40,7 +40,10 @@ def register_tool(max_chars=1000, mask_after_use=False):
 
         def wrapper(*args, **kwargs):
             print(f"[TOOL] [{func.__name__}] {args} {kwargs}")
-            result = str(func(*args, **kwargs))
+            try:
+                result = str(func(*args, **kwargs))
+            except Exception as e:
+                result = f"[TOOL] [{func.__name__}] Error: {str(e)}"
             if max_chars > -1 and len(result) > max_chars:
                 result = result[:max_chars] + "... [truncated]"
             return result
